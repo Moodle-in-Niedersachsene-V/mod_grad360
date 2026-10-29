@@ -25,7 +25,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'mod_grad360';
-$plugin->version   = 2026102907;
+$plugin->version   = 2026102908;
 $plugin->requires  = 2025100600; // Moodle 5.1+.
 $plugin->supported = [501, 599]; // Moodle 5.1 bis 5.x.
 $plugin->maturity  = MATURITY_ALPHA;
