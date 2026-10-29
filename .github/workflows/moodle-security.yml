@@ -1,0 +1,423 @@
+##############################################################################
+# Semgrep-Regelsatz fuer die Sicherheitspruefung von Moodle-Plugins
+# Moodle in Niedersachsen e. V.
+#
+# Aufruf:  semgrep --config moodle-security.yml <plugin-verzeichnis>
+##############################################################################
+
+rules:
+
+  # --------------------------------------------------------------------
+  # 1. Eingabeparameter
+  # --------------------------------------------------------------------
+  - id: moodle-superglobal-direkt
+    languages: [php]
+    severity: ERROR
+    message: >-
+      Direkter Zugriff auf Superglobale. Moodle verlangt required_param(),
+      optional_param() oder required_param_array() mit passendem PARAM_-Typ,
+      damit die Eingabe bereinigt wird.
+    pattern-either:
+      - pattern: $_GET
+      - pattern: $_POST
+      - pattern: $_REQUEST
+      - pattern: $_COOKIE
+    paths:
+      exclude:
+        - "**/tests/**"
+
+  - id: moodle-param-raw
+    languages: [php]
+    severity: WARNING
+    message: >-
+      PARAM_RAW uebernimmt die Eingabe ungefiltert. Nur verwenden, wenn der
+      Wert anschliessend nachweislich bereinigt wird (z. B. mit format_text()
+      oder clean_param()). Sonst engeren PARAM_-Typ waehlen.
+    pattern-either:
+      - pattern: required_param($N, PARAM_RAW)
+      - pattern: optional_param($N, $D, PARAM_RAW)
+
+  # --------------------------------------------------------------------
+  # 2. SQL
+  # --------------------------------------------------------------------
+  - id: moodle-sql-interpolation
+    languages: [php]
+    severity: ERROR
+    message: >-
+      Variable direkt in eine SQL-Zeichenkette eingesetzt. Gebundene
+      Parameter verwenden, etwa $DB->get_records_sql($sql, ['id' => $id]),
+      oder Wertelisten ueber $DB->get_in_or_equal() absichern.
+      Fragmente aus get_in_or_equal() mit den ueblichen Namen ($insql,
+      $ctxsql und weitere) sind von dieser Regel ausgenommen.
+    patterns:
+      - pattern-either:
+        - pattern: $DB->get_records_sql("...$X...", ...)
+        - pattern: $DB->get_record_sql("...$X...", ...)
+        - pattern: $DB->get_field_sql("...$X...", ...)
+        - pattern: $DB->get_fieldset_sql("...$X...", ...)
+        - pattern: $DB->count_records_sql("...$X...", ...)
+        - pattern: $DB->get_recordset_sql("...$X...", ...)
+        - pattern: $DB->execute("...$X...")
+        - pattern: $DB->execute("...$X...", ...)
+        - pattern: $DB->get_records_sql("...$X...")
+        - pattern: $DB->get_record_sql("...$X...")
+        - pattern: $DB->get_field_sql("...$X...")
+        - pattern: $DB->count_records_sql("...$X...")
+      - pattern-not: $DB->get_records_sql("...$insql...", ...)
+      - pattern-not: $DB->get_records_sql("...$insql...")
+      - pattern-not: $DB->get_records_sql("...$ctxsql...", ...)
+      - pattern-not: $DB->get_records_sql("...$ctxsql...")
+      - pattern-not: $DB->get_record_sql("...$insql...", ...)
+      - pattern-not: $DB->get_record_sql("...$insql...")
+      - pattern-not: $DB->get_record_sql("...$ctxsql...", ...)
+      - pattern-not: $DB->get_record_sql("...$ctxsql...")
+      - pattern-not: $DB->get_field_sql("...$insql...", ...)
+      - pattern-not: $DB->get_field_sql("...$insql...")
+      - pattern-not: $DB->get_field_sql("...$ctxsql...", ...)
+      - pattern-not: $DB->get_field_sql("...$ctxsql...")
+      - pattern-not: $DB->get_fieldset_sql("...$insql...", ...)
+      - pattern-not: $DB->get_fieldset_sql("...$insql...")
+      - pattern-not: $DB->get_fieldset_sql("...$ctxsql...", ...)
+      - pattern-not: $DB->get_fieldset_sql("...$ctxsql...")
+      - pattern-not: $DB->count_records_sql("...$insql...", ...)
+      - pattern-not: $DB->count_records_sql("...$insql...")
+      - pattern-not: $DB->count_records_sql("...$ctxsql...", ...)
+      - pattern-not: $DB->count_records_sql("...$ctxsql...")
+      - pattern-not: $DB->get_recordset_sql("...$insql...", ...)
+      - pattern-not: $DB->get_recordset_sql("...$insql...")
+      - pattern-not: $DB->get_recordset_sql("...$ctxsql...", ...)
+      - pattern-not: $DB->get_recordset_sql("...$ctxsql...")
+      - pattern-not: $DB->execute("...$insql...", ...)
+      - pattern-not: $DB->execute("...$insql...")
+      - pattern-not: $DB->execute("...$ctxsql...", ...)
+      - pattern-not: $DB->execute("...$ctxsql...")
+
+  - id: moodle-sql-konkatenation
+    languages: [php]
+    severity: WARNING
+    message: >-
+      SQL wird aus Zeichenketten zusammengesetzt. Pruefen, ob alle
+      eingesetzten Werte aus vertrauenswuerdiger Quelle stammen.
+      Bevorzugt gebundene Parameter verwenden.
+    pattern-either:
+      - pattern: $DB->execute($A . $B, ...)
+      - pattern: $DB->get_records_sql($A . $B, ...)
+      - pattern: $DB->get_record_sql($A . $B, ...)
+
+  - id: moodle-sql-variable-mit-interpolation
+    languages: [php]
+    severity: WARNING
+    message: >-
+      SQL-Zeichenkette mit eingesetzter Variable. Werte aus Nutzereingaben
+      muessen ueber gebundene Parameter laufen. Fragmente aus
+      get_in_or_equal() und aus implode() zusammengesetzte Bedingungen
+      sind ausgenommen.
+    patterns:
+      - pattern: $SQL = "...$X...";
+      - metavariable-regex:
+          metavariable: $SQL
+          regex: '(?i)^\$.*sql.*'
+      - pattern-not-inside: |
+          $W = implode($SEP, $CONDS);
+          ...
+      - pattern-not: $SQL = "...$insql...";
+      - pattern-not: $SQL = "...$ctxsql...";
+
+  # --------------------------------------------------------------------
+  # 3. Ausgabe
+  # --------------------------------------------------------------------
+  - id: moodle-echo-unescaped
+    languages: [php]
+    severity: WARNING
+    message: >-
+      Variable wird ohne erkennbare Maskierung ausgegeben. Fuer Klartext s()
+      verwenden, fuer nutzergenerierte Inhalte format_text() oder
+      format_string().
+    patterns:
+      - pattern-either:
+          - pattern: echo $X;
+          - pattern: print $X;
+      - metavariable-regex:
+          metavariable: $X
+          regex: '^\$[a-zA-Z_][a-zA-Z0-9_]*$'
+      - metavariable-regex:
+          metavariable: $X
+          regex: '^(?!\$(OUTPUT|PAGE|CFG|USER|COURSE|SITE))'
+
+  - id: moodle-capability-ohne-riskbitmask
+    languages: [php]
+    severity: WARNING
+    message: >-
+      Schreibende Capability ohne riskbitmask. Erlaubt die Capability das
+      Einbringen von Inhalten, gehoert RISK_XSS gesetzt; bei
+      Massenversand RISK_SPAM, bei Zugriff auf fremde Daten
+      RISK_PERSONAL. Ist keines davon zutreffend, kann der Befund
+      abgehakt werden.
+      HINWEIS: Die Regel setzt die uebliche Reihenfolge voraus, bei der
+      riskbitmask als erster Eintrag steht.
+    pattern: "['captype' => 'write', ...]"
+    paths:
+      include:
+        - "**/db/access.php"
+
+  - id: moodle-capability-ohne-archetypes
+    languages: [php]
+    severity: WARNING
+    message: >-
+      Capability ohne archetypes. Ohne Archetypen ist die Capability
+      zunaechst fuer keine Rolle erlaubt und muss von Hand vergeben
+      werden. Ist das beabsichtigt, kann der Befund abgehakt werden.
+    patterns:
+      - pattern-either:
+        - pattern: "['captype' => $T, ...]"
+        - pattern: "['riskbitmask' => $R, ...]"
+      - pattern-not: "['captype' => $T, 'contextlevel' => $C, 'archetypes' => $A]"
+      - pattern-not: "['riskbitmask' => $R, 'captype' => $T, 'contextlevel' => $C, 'archetypes' => $A]"
+    paths:
+      include:
+        - "**/db/access.php"
+
+  # --------------------------------------------------------------------
+  # 4. Schreibende Aktionen
+  # --------------------------------------------------------------------
+  - id: moodle-fehlender-sesskey
+    languages: [php]
+    severity: ERROR
+    message: >-
+      Schreibende Datenbankaktion ohne erkennbare Sesskey-Pruefung in dieser
+      Datei. Bei Aktionen, die ueber GET oder POST ausgeloest werden, ist
+      require_sesskey() Pflicht (Schutz vor CSRF).
+    patterns:
+      - pattern-either:
+          - pattern: $DB->insert_record(...)
+          - pattern: $DB->update_record(...)
+          - pattern: $DB->delete_records(...)
+          - pattern: $DB->delete_records_select(...)
+          - pattern: $DB->set_field(...)
+      - pattern-not-inside: |
+          require_sesskey();
+          ...
+      - pattern-not-inside: |
+          confirm_sesskey(...);
+          ...
+    paths:
+      exclude:
+        - "classes/"
+        - "db/"
+        - "tests/"
+        - "lib.php"
+
+  - id: moodle-sesskey-ohne-pruefung
+    languages: [php]
+    severity: WARNING
+    message: >-
+      confirm_sesskey() wird aufgerufen, aber der Rueckgabewert scheinbar
+      nicht ausgewertet. Entweder require_sesskey() nutzen oder das Ergebnis
+      in einer Bedingung pruefen.
+    pattern: confirm_sesskey();
+
+  # --------------------------------------------------------------------
+  # 5. Berechtigungen
+  # --------------------------------------------------------------------
+  - id: moodle-einstiegsdatei-ohne-login
+    languages: [php]
+    severity: ERROR
+    message: >-
+      Einstiegsdatei ohne require_login() oder require_admin(). Jede direkt
+      aufrufbare Seite muss die Anmeldung erzwingen, sofern sie nicht
+      bewusst oeffentlich ist (dann Ausnahme dokumentieren).
+    patterns:
+      - pattern: require_once($X);
+      - pattern-inside: |
+          require_once(__DIR__ . '/../../config.php');
+          ...
+      - pattern-not-inside: |
+          ...
+          require_login(...);
+          ...
+      - pattern-not-inside: |
+          ...
+          require_admin(...);
+          ...
+    paths:
+      include:
+        - "*.php"
+      exclude:
+        - "**/classes/**"
+        - "**/db/**"
+        - "**/lang/**"
+        - "**/tests/**"
+        - "version.php"
+        - "settings.php"
+        - "lib.php"
+
+  - id: moodle-external-ohne-kontextpruefung
+    languages: [php]
+    severity: ERROR
+    message: >-
+      Webservice-Funktion ohne validate_context() oder self::validate_context().
+      Ohne Kontextpruefung greifen die Berechtigungspruefungen nicht korrekt.
+    patterns:
+      - pattern: |
+          public static function $NAME(...) {
+            ...
+          }
+      - pattern-inside: |
+          class $CLASS extends external_api {
+            ...
+          }
+      - pattern-inside: |
+          ...
+          self::validate_parameters(...);
+          ...
+      - pattern-not-inside: |
+          ...
+          self::validate_context(...);
+          ...
+      - pattern-not-inside: |
+          ...
+          validate_context(...);
+          ...
+      - pattern-not-inside: |
+          ...
+          require_capability(...);
+          ...
+      - pattern-not-inside: |
+          ...
+          has_capability(...);
+          ...
+
+  # --------------------------------------------------------------------
+  # 6. Dateien
+  # --------------------------------------------------------------------
+  - id: moodle-pluginfile-ohne-pruefung
+    languages: [php]
+    severity: ERROR
+    message: >-
+      pluginfile-Handler ohne require_login() und Capability-Pruefung.
+      Ohne diese kann jeder beliebige Dateien aus dem Dateibereich abrufen.
+    patterns:
+      - pattern: |
+          function $NAME($COURSE, $CM, $CONTEXT, $AREA, $ARGS, $FORCE, ...) {
+            ...
+          }
+      - metavariable-regex:
+          metavariable: $NAME
+          regex: '.*_pluginfile$'
+      - pattern-not: |
+          function $NAME(...) {
+            ...
+            require_login(...);
+            ...
+          }
+      - pattern-not: |
+          function $NAME(...) {
+            send_file_not_found();
+          }
+
+  - id: moodle-dateipfad-aus-eingabe
+    languages: [php]
+    severity: ERROR
+    message: >-
+      Dateipfad wird aus einer Variablen zusammengesetzt. Pfaddurchquerung
+      moeglich. Werte ueber clean_param(..., PARAM_PATH) oder PARAM_FILE
+      absichern.
+    pattern-either:
+      - pattern: file_get_contents($CFG->dataroot . $X)
+      - pattern: file_put_contents($CFG->dataroot . $X, ...)
+      - pattern: unlink($CFG->dataroot . $X)
+      - pattern: fopen($CFG->dirroot . $X, ...)
+
+  # --------------------------------------------------------------------
+  # 7. Gefaehrliche Konstrukte
+  # --------------------------------------------------------------------
+  - id: moodle-gefaehrliche-funktion
+    languages: [php]
+    severity: ERROR
+    message: >-
+      Ausfuehrung von externem Code oder Systembefehlen. In Moodle-Plugins
+      grundsaetzlich unzulaessig.
+    pattern-either:
+      - pattern: eval(...)
+      - pattern: exec(...)
+      - pattern: system(...)
+      - pattern: shell_exec(...)
+      - pattern: passthru(...)
+      - pattern: popen(...)
+      - pattern: proc_open(...)
+      - pattern: assert($X)
+
+  - id: moodle-unserialize
+    languages: [php]
+    severity: ERROR
+    message: >-
+      unserialize() auf potenziell fremden Daten ermoeglicht
+      Objekt-Injection. json_decode() verwenden.
+    pattern: unserialize(...)
+
+  - id: moodle-schwache-hashfunktion
+    languages: [php]
+    severity: WARNING
+    message: >-
+      md5() und sha1() sind fuer sicherheitsrelevante Zwecke ungeeignet.
+      Fuer Pruefsummen unkritisch, fuer Passwoerter oder Token
+      password_hash() bzw. random_string() verwenden.
+    pattern-either:
+      - pattern: md5(...)
+      - pattern: sha1(...)
+
+  # --------------------------------------------------------------------
+  # 8. Netzwerkzugriffe
+  # --------------------------------------------------------------------
+  - id: moodle-curl-statt-moodle-curl
+    languages: [php]
+    severity: WARNING
+    message: >-
+      Direkte cURL-Nutzung umgeht Moodles Proxy-Einstellungen und den
+      Schutz vor Server-Side Request Forgery. \curl aus core verwenden
+      (require_once($CFG->libdir . '/filelib.php')).
+    pattern-either:
+      - pattern: curl_init(...)
+      - pattern: curl_exec(...)
+
+  - id: moodle-ssl-pruefung-deaktiviert
+    languages: [php]
+    severity: ERROR
+    message: >-
+      Zertifikatspruefung deaktiviert. Damit ist die Verbindung
+      angreifbar. Diese Einstellung entfernen.
+    pattern-either:
+      - pattern: curl_setopt($CH, CURLOPT_SSL_VERIFYPEER, false)
+      - pattern: curl_setopt($CH, CURLOPT_SSL_VERIFYPEER, 0)
+      - pattern: curl_setopt($CH, CURLOPT_SSL_VERIFYHOST, 0)
+      - pattern: curl_setopt($CH, CURLOPT_SSL_VERIFYHOST, false)
+
+  # --------------------------------------------------------------------
+  # 9. Konfiguration und Geheimnisse
+  # --------------------------------------------------------------------
+  - id: moodle-geheimnis-im-code
+    languages: [php]
+    severity: ERROR
+    message: >-
+      Moeglicherweise fest eingetragenes Geheimnis. Zugangsdaten gehoeren
+      in die Plugin-Einstellungen (admin_setting_configpasswordunmask)
+      und nicht in den Quellcode.
+    patterns:
+      - pattern: $VAR = "$SECRET";
+      - metavariable-regex:
+          metavariable: $VAR
+          regex: '(?i)\$(password|passwd|secret|apikey|api_key|token|clientsecret|clientid)$'
+      - metavariable-regex:
+          metavariable: $SECRET
+          regex: '^.{6,}$'
+
+  - id: moodle-debug-ausgabe
+    languages: [php]
+    severity: WARNING
+    message: >-
+      Debug-Ausgabe im Auslieferungsstand. Vor Veroeffentlichung entfernen
+      oder durch debugging() ersetzen.
+    pattern-either:
+      - pattern: var_dump(...)
+      - pattern: print_r($X)
+      - pattern: error_log(...)

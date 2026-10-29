@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="mod/grad360/db" VERSION="2026102901" COMMENT="mod_grad360 database tables"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd">
+  <TABLES>
+
+    <!-- Main instance table (one row per activity). -->
+    <TABLE NAME="grad360" COMMENT="Stores each activity instance configuration.">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" COMMENT="Foreign key to course.id"/>
+        <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" COMMENT="Activity name"/>
+        <FIELD NAME="intro" TYPE="text" NOTNULL="false" COMMENT="Activity description (standard Moodle intro)"/>
+        <FIELD NAME="introformat" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="mode" TYPE="char" LENGTH="20" NOTNULL="true" DEFAULT="panorama" COMMENT="panorama or rotation"/>
+        <FIELD NAME="image" TYPE="text" NOTNULL="false" COMMENT="URL or pluginfile path for panorama image"/>
+        <FIELD NAME="images" TYPE="text" NOTNULL="false" COMMENT="JSON array of image URLs for rotation mode"/>
+        <FIELD NAME="hfov" TYPE="int" LENGTH="5" NOTNULL="true" DEFAULT="100" COMMENT="Horizontal field of view (degrees)"/>
+        <FIELD NAME="autorotate" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" COMMENT="Auto-rotate panorama"/>
+        <FIELD NAME="autoplay" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" COMMENT="Auto-play rotation"/>
+        <FIELD NAME="speed" TYPE="number" LENGTH="5" DECIMALS="2" NOTNULL="true" DEFAULT="1.00" COMMENT="Rotation speed"/>
+        <FIELD NAME="viewerheight" TYPE="int" LENGTH="5" NOTNULL="true" DEFAULT="450" COMMENT="Viewer height in pixels"/>
+        <FIELD NAME="grade" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="100" COMMENT="Maximum grade (scale or points)"/>
+        <FIELD NAME="completionhotspots" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" COMMENT="Require all hotspots for completion"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="course" UNIQUE="false" FIELDS="course"/>
+      </INDEXES>
+    </TABLE>
+
+    <!-- Hotspot definitions per activity instance. -->
+    <TABLE NAME="grad360_hotspots" COMMENT="Hotspot definitions for each activity instance.">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="grad360id" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Foreign key to grad360.id"/>
+        <FIELD NAME="sortorder" TYPE="int" LENGTH="5" NOTNULL="true" DEFAULT="0"/>
+        <FIELD NAME="title" TYPE="char" LENGTH="255" NOTNULL="true" DEFAULT=""/>
+        <FIELD NAME="content" TYPE="text" NOTNULL="false" COMMENT="Information text shown to the learner"/>
+        <FIELD NAME="link" TYPE="text" NOTNULL="false" COMMENT="Optional URL"/>
+        <FIELD NAME="pitch" TYPE="number" LENGTH="10" DECIMALS="4" NOTNULL="true" DEFAULT="0" COMMENT="Vertical position -90..90"/>
+        <FIELD NAME="yaw" TYPE="number" LENGTH="10" DECIMALS="4" NOTNULL="true" DEFAULT="0" COMMENT="Horizontal position -180..180"/>
+        <FIELD NAME="icon" TYPE="char" LENGTH="20" NOTNULL="true" DEFAULT="info"/>
+        <FIELD NAME="required" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" COMMENT="Must be visited for completion/grade"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="fk_grad360id" TYPE="foreign" FIELDS="grad360id" REFTABLE="grad360" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="grad360id_sortorder" UNIQUE="false" FIELDS="grad360id,sortorder"/>
+      </INDEXES>
+    </TABLE>
+
+    <!-- Per-user progress: which hotspots have been visited. -->
+    <TABLE NAME="grad360_progress" COMMENT="Tracks which hotspots each user has visited.">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="grad360id" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="hotspotid" TYPE="int" LENGTH="10" NOTNULL="true"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="fk_grad360id" TYPE="foreign" FIELDS="grad360id" REFTABLE="grad360" REFFIELDS="id"/>
+        <KEY NAME="fk_userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+        <KEY NAME="fk_hotspotid" TYPE="foreign" FIELDS="hotspotid" REFTABLE="grad360_hotspots" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="grad360id_userid" UNIQUE="false" FIELDS="grad360id,userid"/>
+        <INDEX NAME="userid_hotspotid" UNIQUE="true" FIELDS="userid,hotspotid" COMMENT="Each user visits each hotspot at most once"/>
+      </INDEXES>
+    </TABLE>
+
+  </TABLES>
+</XMLDB>
