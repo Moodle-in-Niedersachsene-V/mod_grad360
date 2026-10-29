@@ -41,7 +41,7 @@ export default class RotationViewer {
         this.dragging = false;
         this.lastX = 0;
         this.autoplay = config.autoplay || false;
-        this.speed = config.speed || 100; // ms per frame.
+        this.speed = config.speed || 100; // Ms per frame.
         this.loadedImages = [];
         this.autoplayTimer = null;
         this.hotspots = config.hotspots || [];
