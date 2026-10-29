@@ -130,17 +130,20 @@ class mod_grad360_mod_form extends moodleform_mod {
 
         $hotspotgroup = [];
         $hotspotgroup[] = $mform->createElement(
-            'text', 'hotspot_title',
+            'text',
+            'hotspot_title',
             get_string('hotspot_title', 'mod_grad360'),
             ['size' => '30']
         );
         $hotspotgroup[] = $mform->createElement(
-            'text', 'hotspot_content',
+            'text',
+            'hotspot_content',
             get_string('hotspot_text', 'mod_grad360'),
             ['size' => '40']
         );
         $hotspotgroup[] = $mform->createElement(
-            'text', 'hotspot_link',
+            'text',
+            'hotspot_link',
             get_string('hotspot_link', 'mod_grad360'),
             ['size' => '20']
         );
