@@ -40,6 +40,7 @@ $string['grad360:view'] = 'View 360° Viewer activity';
 $string['grad360:viewreport'] = 'View student progress report';
 $string['grade_max'] = 'Maximum grade';
 $string['grade_max_help'] = 'The maximum grade for this activity. The grade is calculated based on the percentage of required hotspots the student has visited. Set to 0 to disable grading.';
+$string['gradesection'] = 'Grade';
 $string['hfov'] = 'Horizontal field of view';
 $string['hfov_help'] = 'The horizontal field of view in degrees (30–150). A wider angle shows more of the panorama at once. Default is 100.';
 $string['hotspot_icon'] = 'Icon';

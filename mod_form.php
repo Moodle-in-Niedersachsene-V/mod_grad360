@@ -180,7 +180,7 @@ class mod_grad360_mod_form extends moodleform_mod {
         );
 
         // Grade.
-        $mform->addElement('header', 'gradesection', get_string('grade'));
+        $mform->addElement('header', 'gradesection', get_string('gradesection', 'mod_grad360'));
 
         $mform->addElement('text', 'grade', get_string('grade_max', 'mod_grad360'), ['size' => '5']);
         $mform->setType('grade', PARAM_INT);

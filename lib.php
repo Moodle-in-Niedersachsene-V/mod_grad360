@@ -44,6 +44,19 @@ function grad360_add_instance(stdClass $data, mod_grad360_mod_form $mform = null
 
     $data->id = $DB->insert_record('grad360', $data);
 
+    // Save panorama file from draft area.
+    $context = context_module::instance($data->coursemodule);
+    if (isset($data->panorama_file)) {
+        file_save_draft_area_files(
+            $data->panorama_file,
+            $context->id,
+            'mod_grad360',
+            'panorama',
+            0,
+            ['subdirs' => 0, 'maxfiles' => 1]
+        );
+    }
+
     // Save hotspots.
     grad360_save_hotspots($data);
 
@@ -74,6 +87,19 @@ function grad360_update_instance(stdClass $data, mod_grad360_mod_form $mform = n
     }
 
     $DB->update_record('grad360', $data);
+
+    // Save panorama file from draft area.
+    $context = context_module::instance($data->coursemodule);
+    if (isset($data->panorama_file)) {
+        file_save_draft_area_files(
+            $data->panorama_file,
+            $context->id,
+            'mod_grad360',
+            'panorama',
+            0,
+            ['subdirs' => 0, 'maxfiles' => 1]
+        );
+    }
 
     // Update hotspots.
     grad360_save_hotspots($data);

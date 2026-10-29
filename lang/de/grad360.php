@@ -40,6 +40,7 @@ $string['grad360:view'] = '360°-Betrachter anzeigen';
 $string['grad360:viewreport'] = 'Fortschrittsbericht anzeigen';
 $string['grade_max'] = 'Maximale Bewertung';
 $string['grade_max_help'] = 'Die maximale Bewertung für diese Aktivität. Die Bewertung wird auf Basis des Prozentsatzes der vom Lernenden besuchten erforderlichen Hotspots berechnet. Auf 0 setzen, um die Bewertung zu deaktivieren.';
+$string['gradesection'] = 'Bewertung';
 $string['hfov'] = 'Horizontales Sichtfeld';
 $string['hfov_help'] = 'Das horizontale Sichtfeld in Grad (30–150). Ein größerer Winkel zeigt mehr vom Panorama auf einmal. Standard ist 100.';
 $string['hotspot_icon'] = 'Symbol';
