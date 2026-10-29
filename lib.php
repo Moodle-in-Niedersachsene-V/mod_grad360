@@ -27,10 +27,10 @@
  * this function will create a new instance and return the id.
  *
  * @param stdClass $data Form data from mod_form.
- * @param mod_grad360_mod_form $mform The form.
+ * @param mod_grad360_mod_form|null $mform The form.
  * @return int New instance id.
  */
-function grad360_add_instance(stdClass $data, mod_grad360_mod_form $mform = null): int {
+function grad360_add_instance(stdClass $data, ?mod_grad360_mod_form $mform = null): int {
     global $DB;
 
     $data->timecreated = time();
@@ -71,10 +71,10 @@ function grad360_add_instance(stdClass $data, mod_grad360_mod_form $mform = null
  * this function will update an existing instance.
  *
  * @param stdClass $data Form data from mod_form.
- * @param mod_grad360_mod_form $mform The form.
+ * @param mod_grad360_mod_form|null $mform The form.
  * @return bool Success.
  */
-function grad360_update_instance(stdClass $data, mod_grad360_mod_form $mform = null): bool {
+function grad360_update_instance(stdClass $data, ?mod_grad360_mod_form $mform = null): bool {
     global $DB;
 
     $data->id = $data->instance;
@@ -180,7 +180,7 @@ function grad360_save_hotspots(stdClass $data): void {
  * @param string $feature FEATURE_xx constant.
  * @return mixed True if supported, null if unknown.
  */
-function grad360_supports(string $feature): ?bool {
+function grad360_supports(string $feature): mixed {
     switch ($feature) {
         case FEATURE_MOD_INTRO:
             return true;
