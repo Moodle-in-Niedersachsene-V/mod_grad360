@@ -71,7 +71,7 @@ if (empty($students)) {
 
 // Load all progress records for this activity.
 $progressrecords = $DB->get_records('grad360_progress', ['grad360id' => $grad360->id]);
-$progressmap = []; // userid => [hotspotid => timecreated].
+$progressmap = []; // Userid => [hotspotid => timecreated].
 foreach ($progressrecords as $pr) {
     if (!isset($progressmap[$pr->userid])) {
         $progressmap[$pr->userid] = [];

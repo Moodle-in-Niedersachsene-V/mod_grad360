@@ -20,14 +20,13 @@
  * @package    mod_grad360
  * @copyright  2026 Moodle in Niedersachsen e. V.
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @maintainer Moodle in Niedersachsen e. V.
  */
 
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'mod_grad360';
-$plugin->version   = 2026102906;
-$plugin->requires  = 2025100600; // Moodle 5.1+
-$plugin->supported = [501, 599]; // Moodle 5.1 bis 5.x
+$plugin->version   = 2026102907;
+$plugin->requires  = 2025100600; // Moodle 5.1+.
+$plugin->supported = [501, 599]; // Moodle 5.1 bis 5.x.
 $plugin->maturity  = MATURITY_ALPHA;
 $plugin->release   = '0.1.0';

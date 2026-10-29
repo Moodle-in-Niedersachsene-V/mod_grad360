@@ -22,8 +22,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Given an object containing all the necessary data,
  * this function will create a new instance and return the id.
@@ -253,6 +251,7 @@ function grad360_update_grades(stdClass $data, int $userid = 0, bool $nullifnone
 /**
  * Return the list of required custom completion rules.
  *
+ * @param cm_info $cm The course module info object.
  * @return array
  */
 function grad360_get_completion_active_rule_descriptions($cm): array {

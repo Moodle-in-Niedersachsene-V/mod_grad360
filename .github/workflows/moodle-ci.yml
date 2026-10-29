@@ -128,5 +128,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: amd-build-${{ matrix.php }}
-          path: moodle/mod/grad360/amd/build/
+          path: moodle/public/mod/grad360/amd/build/
           if-no-files-found: warn
