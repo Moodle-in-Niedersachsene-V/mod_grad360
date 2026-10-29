@@ -39,4 +39,18 @@ $functions = [
         'ajax' => true,
         'capabilities' => 'mod/grad360:view',
     ],
+    'mod_grad360_save_hotspot' => [
+        'classname' => 'mod_grad360\external\save_hotspot',
+        'description' => 'Save (create or update) a hotspot in the visual editor.',
+        'type' => 'write',
+        'ajax' => true,
+        'capabilities' => 'mod/grad360:managehotspots',
+    ],
+    'mod_grad360_delete_hotspot' => [
+        'classname' => 'mod_grad360\external\delete_hotspot',
+        'description' => 'Delete a hotspot from the visual editor.',
+        'type' => 'write',
+        'ajax' => true,
+        'capabilities' => 'mod/grad360:managehotspots',
+    ],
 ];

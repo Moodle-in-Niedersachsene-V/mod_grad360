@@ -128,6 +128,72 @@
     max-width: 800px;
 }
 
+/* Edit mode */
+.grad360-edit-mode {
+    cursor: crosshair;
+}
+
+.grad360-edit-mode:active {
+    cursor: crosshair;
+}
+
+.grad360-edit-mode .grad360-hotspot {
+    cursor: grab;
+    animation: grad360-pulse 2s infinite;
+}
+
+.grad360-edit-mode .grad360-hotspot:active {
+    cursor: grabbing;
+}
+
+@keyframes grad360-pulse {
+    0%, 100% {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+    50% {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), 0 0 0 6px rgba(0, 123, 255, 0.3);
+    }
+}
+
+/* Editor modal */
+.grad360-editor-modal {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+    pointer-events: auto;
+}
+
+.grad360-editor-modal-content {
+    background: #fff;
+    border-radius: 8px;
+    padding: 24px;
+    min-width: 320px;
+    max-width: 440px;
+    width: 90%;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    max-height: 90%;
+    overflow-y: auto;
+}
+
+.grad360-editor-modal-title {
+    margin: 0 0 16px 0;
+    font-size: 1.2rem;
+    color: #1a1a1a;
+}
+
+.grad360-editor-modal-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
 /* Report table */
 .grad360-report-table td,
 .grad360-report-table th {

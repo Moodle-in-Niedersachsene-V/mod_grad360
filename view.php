@@ -149,6 +149,10 @@ $viewerconfig = [
     'caninteract' => $caninteract,
 ];
 
+// Check if user can manage hotspots (for editor).
+$canmanagehotspots = has_capability('mod/grad360:managehotspots', $context);
+$viewerconfig['canmanagehotspots'] = $canmanagehotspots;
+
 $PAGE->requires->js_call_amd('mod_grad360/view', 'init', [$viewerconfig]);
 
 // Render.
@@ -172,6 +176,18 @@ if ($caninteract && $totalrequired > 0) {
         ]),
     ];
     echo $OUTPUT->render_from_template('mod_grad360/progress_bar', $data);
+}
+
+// Edit hotspots button (for teachers).
+if ($canmanagehotspots && $grad360->mode === 'panorama') {
+    echo html_writer::div(
+        html_writer::tag('button', get_string('editor_start', 'mod_grad360'), [
+            'id' => 'grad360-edit-hotspots-btn',
+            'class' => 'btn btn-primary mb-2',
+            'type' => 'button',
+        ]),
+        'grad360-editor-controls'
+    );
 }
 
 // Viewer container.

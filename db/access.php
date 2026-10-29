@@ -62,6 +62,17 @@ $capabilities = [
         ],
     ],
 
+    // Ability to manage hotspots (create, edit, delete) in the visual editor.
+    'mod/grad360:managehotspots' => [
+        'riskbitmask' => RISK_XSS,
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => [
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW,
+        ],
+    ],
+
     // Ability to view all students' progress reports.
     'mod/grad360:viewreport' => [
         'captype' => 'read',

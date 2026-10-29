@@ -436,6 +436,54 @@ export default class Viewer {
     }
 
     /**
+     * Convert screen pixel coordinates to spherical (pitch, yaw) coordinates.
+     *
+     * This is the inverse of _projectToScreen: given a click position on the
+     * container, it returns the pitch and yaw of the point on the sphere.
+     *
+     * @param {number} screenX X pixel position relative to container.
+     * @param {number} screenY Y pixel position relative to container.
+     * @return {object} {pitch, yaw} in degrees.
+     */
+    screenToCoords(screenX, screenY) {
+        const rect = this.container.getBoundingClientRect();
+
+        // Convert pixel coordinates to NDC (-1 to 1).
+        const ndcX = (screenX / rect.width) * 2 - 1;
+        const ndcY = 1 - (screenY / rect.height) * 2;
+
+        // Unproject using the inverse of the projection.
+        const aspect = this.canvas.width / this.canvas.height;
+        const f = 1.0 / Math.tan((this.hfov * Math.PI) / 360);
+
+        // Ray direction in camera space (pointing into -Z).
+        const dirX = ndcX * aspect / f;
+        const dirY = ndcY / f;
+        const dirZ = -1;
+
+        // Normalize.
+        const len = Math.sqrt(dirX * dirX + dirY * dirY + dirZ * dirZ);
+        const nx = dirX / len;
+        const ny = dirY / len;
+        const nz = dirZ / len;
+
+        // Inverse of model-view rotation to get world-space direction.
+        // The model-view matrix is orthogonal, so its inverse is its transpose.
+        const mv = this._getModelViewMatrix();
+        const wx = mv[0] * nx + mv[1] * ny + mv[2] * nz;
+        const wy = mv[4] * nx + mv[5] * ny + mv[6] * nz;
+        const wz = mv[8] * nx + mv[9] * ny + mv[10] * nz;
+
+        // Convert cartesian back to spherical (pitch, yaw).
+        // Matches the convention in _projectToScreen:
+        // x = -cos(pitch)*sin(yaw), y = sin(pitch), z = cos(pitch)*cos(yaw)
+        const pitch = Math.asin(wy) * 180 / Math.PI;
+        const yaw = Math.atan2(-wx, wz) * 180 / Math.PI;
+
+        return {pitch, yaw};
+    }
+
+    /**
      * Update hotspot positions on the overlay.
      */
     _updateHotspots() {

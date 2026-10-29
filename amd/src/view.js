@@ -29,6 +29,7 @@ import Notification from 'core/notification';
 import {get_string as getString} from 'core/str';
 import Viewer from 'mod_grad360/viewer';
 import RotationViewer from 'mod_grad360/rotation';
+import {init as initEditor} from 'mod_grad360/hotspot_editor';
 
 /**
  * Show the hotspot info popup.
@@ -173,6 +174,11 @@ export const init = (config) => {
         viewer = new RotationViewer(container, config);
     } else {
         viewer = new Viewer(container, config);
+    }
+
+    // Initialize editor for teachers with manage capability.
+    if (config.canmanagehotspots && config.mode === 'panorama') {
+        initEditor(viewer, config);
     }
 
     // Handle hotspot clicks.
