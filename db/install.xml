@@ -39,7 +39,7 @@
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="grad360id" TYPE="int" LENGTH="10" NOTNULL="true" COMMENT="Foreign key to grad360.id"/>
         <FIELD NAME="sortorder" TYPE="int" LENGTH="5" NOTNULL="true" DEFAULT="0"/>
-        <FIELD NAME="title" TYPE="char" LENGTH="255" NOTNULL="true" DEFAULT=""/>
+        <FIELD NAME="title" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="content" TYPE="text" NOTNULL="false" COMMENT="Information text shown to the learner"/>
         <FIELD NAME="link" TYPE="text" NOTNULL="false" COMMENT="Optional URL"/>
         <FIELD NAME="pitch" TYPE="number" LENGTH="10" DECIMALS="4" NOTNULL="true" DEFAULT="0" COMMENT="Vertical position -90..90"/>
