@@ -377,22 +377,7 @@ const showModal = (hs, pitch, yaw) => {
     const deleteBtn = modal.querySelector('#grad360-ed-delete');
     if (deleteBtn) {
         deleteBtn.addEventListener('click', () => {
-            getString('editor_delete_confirm', 'mod_grad360').then((confirmMsg) => {
-                if (window.confirm(confirmMsg)) {
-                    deleteHotspot(hs.id).then((result) => {
-                        if (result.success) {
-                            // Remove from viewer's hotspot list.
-                            const idx = viewerInstance.hotspots.findIndex((h) => h.id === hs.id);
-                            if (idx !== -1) {
-                                viewerInstance.hotspots.splice(idx, 1);
-                            }
-                            removeModal();
-                        }
-                        return;
-                    }).catch(Notification.exception);
-                }
-                return;
-            }).catch(Notification.exception);
+            performDelete(hs);
         });
     }
 
@@ -400,6 +385,38 @@ const showModal = (hs, pitch, yaw) => {
     modal.querySelector('#grad360-ed-cancel').addEventListener('click', () => {
         removeModal();
     });
+};
+
+/**
+ * Perform hotspot deletion with confirmation.
+ *
+ * @param {object} hs The hotspot to delete.
+ */
+const performDelete = (hs) => {
+    getString('editor_delete_confirm', 'mod_grad360').then((confirmMsg) => {
+        Notification.confirm('', confirmMsg, '', '', () => {
+            handleDeleteConfirmed(hs);
+        });
+        return;
+    }).catch(Notification.exception);
+};
+
+/**
+ * Handle confirmed hotspot deletion.
+ *
+ * @param {object} hs The hotspot to delete.
+ */
+const handleDeleteConfirmed = (hs) => {
+    deleteHotspot(hs.id).then((result) => {
+        if (result.success) {
+            const idx = viewerInstance.hotspots.findIndex((h) => h.id === hs.id);
+            if (idx !== -1) {
+                viewerInstance.hotspots.splice(idx, 1);
+            }
+            removeModal();
+        }
+        return;
+    }).catch(Notification.exception);
 };
 
 /**
