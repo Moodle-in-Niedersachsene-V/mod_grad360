@@ -30,7 +30,6 @@ require_once($CFG->dirroot . '/mod/grad360/backup/moodle2/restore_grad360_stepsl
  * Restore task for the grad360 activity module.
  */
 class restore_grad360_activity_task extends restore_activity_task {
-
     /**
      * No particular settings for this activity.
      */

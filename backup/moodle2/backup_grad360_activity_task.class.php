@@ -30,7 +30,6 @@ require_once($CFG->dirroot . '/mod/grad360/backup/moodle2/backup_grad360_stepsli
  * Backup task for the grad360 activity module.
  */
 class backup_grad360_activity_task extends backup_activity_task {
-
     /**
      * No particular settings for this activity.
      */

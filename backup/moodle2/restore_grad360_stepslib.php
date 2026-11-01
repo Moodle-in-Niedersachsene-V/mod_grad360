@@ -26,7 +26,6 @@
  * Structure step to restore one grad360 activity.
  */
 class restore_grad360_activity_structure_step extends restore_activity_structure_step {
-
     /**
      * Define the restore structure.
      *
@@ -61,7 +60,7 @@ class restore_grad360_activity_structure_step extends restore_activity_structure
         $data->timecreated = $this->apply_date_offset($data->timecreated);
         $data->timemodified = $this->apply_date_offset($data->timemodified);
 
-        // nosemgrep: moodle-fehlender-sesskey
+        // Nosemgrep: moodle-fehlender-sesskey (restore framework handles CSRF).
         $newitemid = $DB->insert_record('grad360', $data);
         $this->apply_activity_instance($newitemid);
     }
@@ -79,7 +78,7 @@ class restore_grad360_activity_structure_step extends restore_activity_structure
 
         $data->grad360id = $this->get_new_parentid('grad360');
 
-        // nosemgrep: moodle-fehlender-sesskey
+        // Nosemgrep: moodle-fehlender-sesskey (restore framework handles CSRF).
         $newitemid = $DB->insert_record('grad360_hotspots', $data);
         $this->set_mapping('grad360_hotspot', $oldid, $newitemid);
     }
@@ -99,7 +98,7 @@ class restore_grad360_activity_structure_step extends restore_activity_structure
         $data->hotspotid = $this->get_mappingid('grad360_hotspot', $data->hotspotid);
         $data->timecreated = $this->apply_date_offset($data->timecreated);
 
-        // nosemgrep: moodle-fehlender-sesskey
+        // Nosemgrep: moodle-fehlender-sesskey (restore framework handles CSRF).
         $DB->insert_record('grad360_progress', $data);
     }
 

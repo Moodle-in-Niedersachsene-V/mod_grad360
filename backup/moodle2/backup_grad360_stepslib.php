@@ -26,7 +26,6 @@
  * Define the complete grad360 structure for backup.
  */
 class backup_grad360_activity_structure_step extends backup_activity_structure_step {
-
     /**
      * Define the structure of the backup file.
      *
