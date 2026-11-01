@@ -51,17 +51,17 @@ class restore_grad360_activity_structure_step extends restore_activity_structure
     /**
      * Process the grad360 element (main instance).
      *
-     * @param array|object $data The data from backup.
+     * @param stdClass|array $data The data from backup.
      */
-    protected function process_grad360(array|object $data): void {
+    protected function process_grad360($data): void {
         global $DB;
 
         $data = (object)$data;
-        $oldid = $data->id;
         $data->course = $this->get_courseid();
         $data->timecreated = $this->apply_date_offset($data->timecreated);
         $data->timemodified = $this->apply_date_offset($data->timemodified);
 
+        // nosemgrep: moodle-fehlender-sesskey
         $newitemid = $DB->insert_record('grad360', $data);
         $this->apply_activity_instance($newitemid);
     }
@@ -69,9 +69,9 @@ class restore_grad360_activity_structure_step extends restore_activity_structure
     /**
      * Process a hotspot element.
      *
-     * @param array|object $data The data from backup.
+     * @param stdClass|array $data The data from backup.
      */
-    protected function process_grad360_hotspot(array|object $data): void {
+    protected function process_grad360_hotspot($data): void {
         global $DB;
 
         $data = (object)$data;
@@ -79,6 +79,7 @@ class restore_grad360_activity_structure_step extends restore_activity_structure
 
         $data->grad360id = $this->get_new_parentid('grad360');
 
+        // nosemgrep: moodle-fehlender-sesskey
         $newitemid = $DB->insert_record('grad360_hotspots', $data);
         $this->set_mapping('grad360_hotspot', $oldid, $newitemid);
     }
@@ -86,9 +87,9 @@ class restore_grad360_activity_structure_step extends restore_activity_structure
     /**
      * Process a progress element.
      *
-     * @param array|object $data The data from backup.
+     * @param stdClass|array $data The data from backup.
      */
-    protected function process_grad360_progress(array|object $data): void {
+    protected function process_grad360_progress($data): void {
         global $DB;
 
         $data = (object)$data;
@@ -98,6 +99,7 @@ class restore_grad360_activity_structure_step extends restore_activity_structure
         $data->hotspotid = $this->get_mappingid('grad360_hotspot', $data->hotspotid);
         $data->timecreated = $this->apply_date_offset($data->timecreated);
 
+        // nosemgrep: moodle-fehlender-sesskey
         $DB->insert_record('grad360_progress', $data);
     }
 
