@@ -83,6 +83,6 @@ class backup_grad360_activity_structure_step extends backup_activity_structure_s
         $grad360->annotate_files('mod_grad360', 'rotation', null);
 
         // Return the root element wrapped in standard activity info.
-        return $this->prepare_activity_plan($grad360);
+        return $this->prepare_activity_structure($grad360);
     }
 }
